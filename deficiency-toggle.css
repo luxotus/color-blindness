@@ -1,3 +1,8 @@
+/**
+* Temp file till the desired styling is worked out.
+* I'll use inline styling on the html, so when it's
+* built by js users will only need just a js file to use this tool
+*/
 #color-def-holder {
     height: 35px;
     width: 200px;
