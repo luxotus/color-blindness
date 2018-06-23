@@ -5,6 +5,7 @@
 */
 #color-def-holder {
     /* display: none; */
+    z-index: 99999999;
     height: 35px;
     width: 200px;
     position: absolute;
