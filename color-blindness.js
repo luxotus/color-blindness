@@ -1,4 +1,5 @@
-const colorBlindnessTool = (function() {
+var colorBlindnessTool = (function() {
+    let debugMode = true;
 
     /**
      * Setup event listeners on deficiency toggle buttons to loop through deficiencies
@@ -8,7 +9,11 @@ const colorBlindnessTool = (function() {
      * @param {boolean} showDebugMessages
      * @returns {string} status message
      */
-    let init = function (showColorToggle, colorTogglePosition, showDebugMessages) {
+    let init = function ( showColorToggle, colorTogglePosition, showDebugMessages ) {
+        if (typeof showDebugMessages == 'boolean') {
+            debugMode = showDebugMessages;
+        }
+
         return '';
     };
 
@@ -18,7 +23,7 @@ const colorBlindnessTool = (function() {
      * @param {string} colorDeficiency
      * @returns {{deficiencyName: string, description: string, visibleColors: [string], hiddenColors: [string]}}
      */
-    let getColorDeficiencyDetails = function (colorDeficiency) {
+    let getColorDeficiencyDetails = function ( colorDeficiency ) {
 
         return {};
     };
@@ -30,7 +35,7 @@ const colorBlindnessTool = (function() {
      * @param {string} deficiency
      * @returns {string} converted rgb()
      */
-    let convertColorToDeficiency = function (color, deficiency) {
+    let convertColorToDeficiency = function ( color, deficiency ) {
 
         return '';
     };
@@ -42,7 +47,7 @@ const colorBlindnessTool = (function() {
      * @param {string} deficiency
      * @returns status message
      */
-    let convertImageToDeficiency = function (image, deficiency) {
+    let convertImageToDeficiency = function ( image, deficiency ) {
 
         return '';
     };
@@ -52,9 +57,9 @@ const colorBlindnessTool = (function() {
      *
      * @param {obj} element
      * @param {string} deficiency
-     * @returns status message
+     * @returns {string} status message
      */
-    let convertElementToDeficiency = function (element, deficiency) {
+    let convertElementToDeficiency = function ( element, deficiency ) {
 
         return '';
     };
@@ -66,7 +71,7 @@ const colorBlindnessTool = (function() {
      * @param {boolean} includeImages
      * @returns {string} status message
      */
-    let convertDomToDeficiency = function (deficiency, includeImages) {
+    let convertDomToDeficiency = function ( deficiency, includeImages ) {
 
         return '';
     };

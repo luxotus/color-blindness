@@ -1,11 +1,44 @@
-// Get details on a/all color deficiency/deficiencies 
+describe('Color Blindness Tool', () => {
 
-// Convert color to a specified color deficiency and convert it into specified deficiency
+    // init ( showColorToggle, colorTogglePosition, showDebugMessages )
+    describe('Initializing color toggle', () => {
+        it('', function() {
+            expect(colorBlindnessTool.init()).toBe('');
+        });
+    });
 
-// Convert colors on an image to a specified deficiency
+    // getDetails ( colorDeficiency )
+    describe('Get details on color deficiency', () => {
+        it('', function() {
+            expect(colorBlindnessTool.getDetails()).toEqual(jasmine.objectContaining({}));
+        });
+    });
 
-// Grab the color of an element on the page and convert its colors/images into a specified color deficiency 
+    // convertColor ( color, deficiency )
+    describe('Convert color to how it would be perceived by a color deficiency', () => {
+        it('', function() {
+            expect(colorBlindnessTool.convertColor()).toBe('');
+        });
+    });
 
-// Iterate through the all elements in a dom and pass it to funcition above
+    // convertImage ( image, deficiency )
+    describe('Convert image to how it would be perceived by a color deficiency', () => {
+        it('', function() {
+            expect(colorBlindnessTool.convertImage()).toBe('');
+        });
+    });
 
-// Setup event listeners on deficiency toggle buttons to loop through deficiencies
+    // convertElement ( element, deficiency )
+    describe('Convert element to how it would be perceived by a color deficiency', () => {
+        it('', function() {
+            expect(colorBlindnessTool.convertElement()).toBe('');
+        });
+    });
+
+    // convertDom ( deficiency, includeImages )
+    describe('Converts all colors/images on a dom to how it would be perceived by a color deficiency', () => {
+        it('', function() {
+            expect(colorBlindnessTool.convertDom()).toBe('');
+        });
+    });
+});
