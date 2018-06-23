@@ -4,7 +4,7 @@
 * built by js users will only need just a js file to use this tool
 */
 #color-def-holder {
-    /* display: none; */
+    display: block;
     z-index: 99999999;
     height: 35px;
     width: 200px;
@@ -37,7 +37,6 @@
     width: 5px;
     border-top: 2px solid gray;
     border-right: 2px solid gray;
-    /* cursor: pointer; */
 }
 
 .button-left .arrow {

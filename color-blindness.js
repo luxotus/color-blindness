@@ -6,8 +6,32 @@ var colorBlindnessTool = (function() {
      * @returns {string} html with inline css
      */
     let buildColorToggle = function () {
+        // randomNum to attach to classes and id
+        let randomNum = Math.floor(Math.random() * 1000000000);
+
+        // Array of classes and id
+        let selectors = {
+            id: {
+                '#def-holder': 'display:block;z-index:99999999;height:35px;width:200px;position:absolute;top:0;margin:auto;left:0;right:0;border:1px solid #b7b7b7;border-top:none;border-bottom-left-radius:5px;border-bottom-right-radius:5px;background-color:#fff;',
+            },
+            class: {
+                '.button': 'position:relative;display:flex;align-items:center;justify-content:center;height:100%;width:25px;float:left;cursor:pointer;',
+                '.arrow-lt': 'height:5px;width:5px;border-top:2pxsolidgray;border-right:2pxsolidgray;transform:rotate(-135deg);',
+                '.arrow-rt': 'height:5px;width:5px;border-top:2pxsolidgray;border-right:2pxsolidgray;transform:rotate(45deg);',
+                '.def': 'height:100%;width:150px;position:relative;float:left;line-height:35px;font-size:20px;font-weight:bold;text-align:center;letter-spacing:0.5px;'
+            }
+        };
+
+        let colorToggleHtml = '<div id="def-holder'+randomNum+'"><div class="button'+randomNum+'"><div class="arrow-lt'+randomNum+'"></div></div><div class="def'+randomNum+'">Deficiency</div><div class="button'+randomNum+'"><div class="arrow-rt'+randomNum+'"></div></div></div>';
+        let colorToggleStyle = '';
+
+        console.log({html: colorToggleHtml, style: colorToggleStyle});
+
+        return {html: colorToggleHtml, style: colorToggleStyle};
 
     };
+
+    buildColorToggle();
 
     /**
      * Setup event listeners on deficiency toggle buttons to loop through deficiencies
