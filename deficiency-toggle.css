@@ -4,6 +4,7 @@
 * built by js users will only need just a js file to use this tool
 */
 #color-def-holder {
+    display: none;
     height: 35px;
     width: 200px;
     position: absolute;
