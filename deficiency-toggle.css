@@ -1,0 +1,37 @@
+#color-def-holder {
+    height: 35px;
+    width: 200px;
+    position: absolute;
+    top: 0;
+    margin: auto;
+    left: 0;
+    right: 0;
+    border: 2px solid #5600ff;
+}
+
+.button-left {
+    height: 100%;
+    width: 25px;
+    float: left;
+    position: relative;
+    background: cornflowerblue;
+}
+
+.color-def {
+    height: 100%;
+    width: 150px;
+    position: relative;
+    float: left;
+    line-height: 35px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.button-right {
+    height: 100%;
+    width: 25px;
+    float: left;
+    position: relative;
+    background: cornflowerblue;
+}
