@@ -4,7 +4,7 @@
 * built by js users will only need just a js file to use this tool
 */
 #color-def-holder {
-    display: none;
+    /* display: none; */
     height: 35px;
     width: 200px;
     position: absolute;
@@ -12,15 +12,39 @@
     margin: auto;
     left: 0;
     right: 0;
-    border: 2px solid #5600ff;
+    border: 1px solid #b7b7b7;
+    border-top: none;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    background-color: #fff;
 }
 
-.button-left {
+.button-left,
+.button-right {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     height: 100%;
     width: 25px;
     float: left;
-    position: relative;
-    background: cornflowerblue;
+    cursor: pointer;
+}
+
+.arrow {
+    height: 5px;
+    width: 5px;
+    border-top: 2px solid gray;
+    border-right: 2px solid gray;
+    /* cursor: pointer; */
+}
+
+.button-left .arrow {
+    transform: rotate(-135deg);
+}
+
+.button-right .arrow {
+    transform: rotate(45deg);
 }
 
 .color-def {
@@ -32,12 +56,5 @@
     font-size: 20px;
     font-weight: bold;
     text-align: center;
-}
-
-.button-right {
-    height: 100%;
-    width: 25px;
-    float: left;
-    position: relative;
-    background: cornflowerblue;
+    letter-spacing: 0.5px;
 }

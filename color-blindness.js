@@ -2,6 +2,14 @@ var colorBlindnessTool = (function() {
     let debugMode = true;
 
     /**
+     * Private function for building toggle using js
+     * @returns {string} html with inline css
+     */
+    let buildColorToggle = function () {
+
+    };
+
+    /**
      * Setup event listeners on deficiency toggle buttons to loop through deficiencies
      *
      * @param {boolean} showColorToggle
