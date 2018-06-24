@@ -24,12 +24,26 @@ const colorBlindnessTool = (function () {
    * Private function for building toggle using js
    * @returns {string} html with inline css
    */
-  const buildColorToggle = function () {
+  const buildColorToggle = function (togglePosition) {
     const randomNum = Math.floor(Math.random() * 1000000);
     const colorToggleHtml = `<div id="def-holder${randomNum}"><div id="button-lt${randomNum}" class="button${randomNum}"><div class="arrow-lt${randomNum}"></div></div><div id="def-txt${randomNum}" class="def${randomNum}">Deficiency</div><div id="button-rt${randomNum}" class="button${randomNum}"><div class="arrow-rt${randomNum}"></div></div></div>`;
     let colorToggleStyle = '';
+    let stylePosition = '';
+
+    if (typeof togglePosition === 'string') {
+      if (togglePosition === 'left') {
+        stylePosition = 'left:0;';
+      } else if (togglePosition === 'right') {
+        stylePosition = 'right:0;';
+      } else {
+        stylePosition = 'left:0;right:0;';
+      }
+    } else {
+      stylePosition = 'left:0;right:0;';
+    }
+
     const selectors = {
-      '#def-holder': 'display:block;z-index:99999999;height:35px;width:350px;position:absolute;top:0;margin:auto;left:0;right:0;border:1px solid #b7b7b7;border-top:none;border-bottom-left-radius:5px;border-bottom-right-radius:5px;background-color:#fff;',
+      '#def-holder': `display:block;z-index:99999999;height:35px;width:350px;position:absolute;top:0;margin:auto;${stylePosition}border:1px solid #b7b7b7;border-top:none;border-bottom-left-radius:5px;border-bottom-right-radius:5px;background-color:#fff;`,
       '.button': 'position:relative;display:flex;align-items:center;justify-content:center;height:100%;width:25px;float:left;cursor:pointer;',
       '.arrow-lt': 'height:5px;width:5px;border-top:2px solid gray;border-right:2px solid gray;transform:rotate(-135deg);',
       '.arrow-rt': 'height:5px;width:5px;border-top:2px solid gray;border-right:2px solid gray;transform:rotate(45deg);',
@@ -97,14 +111,13 @@ const colorBlindnessTool = (function () {
   /**
    * Setup event listeners on deficiency toggle buttons to loop through deficiencies
    *
-   * @param {boolean} showColorToggle
    * @param {string} togglePosition
    * @param {boolean} showDebugMessages
    * @returns {string} status message
    */
-  const initialize = function (showColorToggle, togglePosition, includeImages, showDebugMessages) {
+  const initialize = function (togglePosition, includeImages, showDebugMessages) {
     const styleElement = document.createElement('style');
-    const { txtId, arrowLeftBtn, arrowRightBtn, style, html } = buildColorToggle();
+    const { txtId, arrowLeftBtn, arrowRightBtn, style, html } = buildColorToggle(togglePosition);
     const lastDeficiency = colorDeficiencies.length - 1;
     let deficiencyIndex = 0;
     let statusMessage = {
