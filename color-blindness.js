@@ -31,61 +31,6 @@ var colorBlindnessTool = (function() {
     };
 
     /**
-     * Setup event listeners on deficiency toggle buttons to loop through deficiencies
-     *
-     * @param {boolean} showColorToggle
-     * @param {string} colorTogglePosition
-     * @param {boolean} showDebugMessages
-     * @returns {string} status message
-     */
-    let init = function ( showColorToggle, colorTogglePosition, showDebugMessages ) {
-        let style = document.createElement('style');
-        let colorToggle = buildColorToggle();
-        let deficiencyIndex = 0;
-        let colorDeficiencies = [
-            'Red-Weak/Protanomaly',
-            'Green-Weak/Deuteranomaly',
-            'Blue-Weak/Tritanomaly',
-            'Red-Blind/Protanopia',
-            'Green-Blind/Deuteranopia',
-            'Blue-Blind/Tritanopia',
-            'Monochromacy/Achromatopsia',
-            'Blue Cone Monochromacy'
-        ];
-        style.type = 'text/css';
-        style.appendChild(document.createTextNode(colorToggle.style));
-        document.getElementsByTagName('head')[0].appendChild(style);
-        document.getElementsByTagName('body')[0].innerHTML += colorToggle.html;
-        document.getElementById(colorToggle.txtId).innerHTML = colorDeficiencies[0];
-
-        if (typeof showDebugMessages == 'boolean') {
-            debugMode = showDebugMessages;
-        }
-
-        document.getElementById(colorToggle.arrowLeftBtn).addEventListener("click", function() {
-            if (deficiencyIndex == 0) {
-                deficiencyIndex = colorDeficiencies.length - 1;
-            } else {
-                deficiencyIndex--;
-            }
-
-            document.getElementById(colorToggle.txtId).innerHTML = colorDeficiencies[deficiencyIndex];
-        });
-
-        document.getElementById(colorToggle.arrowRightBtn).addEventListener("click", function() {
-            if (deficiencyIndex == colorDeficiencies.length - 1) {
-                deficiencyIndex = 0;
-            } else {
-                deficiencyIndex++;
-            }
-
-            document.getElementById(colorToggle.txtId).innerHTML = colorDeficiencies[deficiencyIndex];
-        });
-
-        return '';
-    };
-
-    /**
      * Get details on a/all color deficiency/deficiencies
      *
      * @param {string} colorDeficiency
@@ -142,6 +87,81 @@ var colorBlindnessTool = (function() {
     let convertDomToDeficiency = function ( deficiency, includeImages ) {
 
         return '';
+    };
+
+    /**
+     * Setup event listeners on deficiency toggle buttons to loop through deficiencies
+     *
+     * @param {boolean} showColorToggle
+     * @param {string} colorTogglePosition
+     * @param {boolean} showDebugMessages
+     * @returns {string} status message
+     */
+    let init = function ( showColorToggle, colorTogglePosition, includeImages, showDebugMessages ) {
+        let style = document.createElement('style');
+        let colorToggle = buildColorToggle();
+        let deficiencyIndex = 0;
+        let statusMessage = {events:{}};
+        let colorDeficiencies = [
+            'Red-Weak/Protanomaly',
+            'Green-Weak/Deuteranomaly',
+            'Blue-Weak/Tritanomaly',
+            'Red-Blind/Protanopia',
+            'Green-Blind/Deuteranopia',
+            'Blue-Blind/Tritanopia',
+            'Monochromacy/Achromatopsia',
+            'Blue Cone Monochromacy'
+        ];
+        style.type = 'text/css';
+        style.appendChild(document.createTextNode(colorToggle.style));
+        document.getElementsByTagName('head')[0].appendChild(style);
+        document.getElementsByTagName('body')[0].innerHTML += colorToggle.html;
+        document.getElementById(colorToggle.txtId).innerHTML = colorDeficiencies[0];
+
+        if (typeof showDebugMessages == 'boolean') {
+            debugMode = showDebugMessages;
+        }
+
+        document.getElementById(colorToggle.arrowLeftBtn).addEventListener("click", function() {
+            if (deficiencyIndex == 0) {
+                deficiencyIndex = colorDeficiencies.length - 1;
+            } else {
+                deficiencyIndex--;
+            }
+
+            document.getElementById(colorToggle.txtId).innerHTML = colorDeficiencies[deficiencyIndex];
+            // convertDomToDeficiency ( colorDeficiencies[deficiencyIndex], includeImages )
+        });
+
+        document.getElementById(colorToggle.arrowRightBtn).addEventListener("click", function() {
+            if (deficiencyIndex == colorDeficiencies.length - 1) {
+                deficiencyIndex = 0;
+            } else {
+                deficiencyIndex++;
+            }
+
+            document.getElementById(colorToggle.txtId).innerHTML = colorDeficiencies[deficiencyIndex];
+            // convertDomToDeficiency ( colorDeficiencies[deficiencyIndex], includeImages )
+        });
+
+        // Testing
+        if (debugMode) {
+            document.getElementById(colorToggle.arrowLeftBtn).click();
+            if (document.getElementById(colorToggle.txtId).innerHTML == colorDeficiencies[colorDeficiencies.length - 1]) {
+                statusMessage.events['left-arrow-btn'] = 'Success';
+            } else {
+                statusMessage.events['left-arrow-btn'] = 'Fail';
+            }
+
+            document.getElementById(colorToggle.arrowRightBtn).click();
+            if (document.getElementById(colorToggle.txtId).innerHTML == colorDeficiencies[0]) {
+                statusMessage.events['right-arrow-btn'] = 'Success';
+            } else {
+                statusMessage.events['right-arrow-btn'] = 'Fail';
+            }
+
+            return statusMessage;
+        }
     };
 
     return {

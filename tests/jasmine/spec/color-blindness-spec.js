@@ -1,9 +1,9 @@
 describe('Color Blindness Tool', () => {
 
-    // init ( showColorToggle, colorTogglePosition, showDebugMessages )
+    // init ( showColorToggle, colorTogglePosition, includeImages, showDebugMessages )
     describe('Initializing color toggle', () => {
-        it('', function() {
-            expect(colorBlindnessTool.init()).toBe('');
+        it('Events Listeners on color toggle buttons are working.', function() {
+            expect(colorBlindnessTool.init(true, 'left', false, true)).toEqual(jasmine.objectContaining({events: {'left-arrow-btn': 'Success', 'right-arrow-btn': 'Success'}}));
         });
     });
 
