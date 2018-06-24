@@ -7,13 +7,6 @@ describe('Color Blindness Tool', () => {
         });
     });
 
-    // getDetails ( colorDeficiency )
-    describe('Get details on color deficiency', () => {
-        it('', function() {
-            expect(colorBlindnessTool.getDetails()).toEqual(jasmine.objectContaining({}));
-        });
-    });
-
     // convertColor ( color, deficiency )
     describe('Convert color to how it would be perceived by a color deficiency', () => {
         it('', function() {

@@ -1,12 +1,22 @@
 var colorBlindnessTool = (function() {
     let debugMode = true;
+    let colorDeficiencies = [
+        'Red-Weak/Protanomaly',
+        'Green-Weak/Deuteranomaly',
+        'Blue-Weak/Tritanomaly',
+        'Red-Blind/Protanopia',
+        'Green-Blind/Deuteranopia',
+        'Blue-Blind/Tritanopia',
+        'Monochromacy/Achromatopsia',
+        'Blue Cone Monochromacy'
+    ];
 
     /**
      * Private function for building toggle using js
      * @returns {string} html with inline css
      */
     let buildColorToggle = function () {
-        let randomNum = Math.floor(Math.random() * 1000000000);
+        let randomNum = Math.floor(Math.random() * 1000000);
         let colorToggleHtml = '<div id="def-holder'+randomNum+'"><div id="button-lt'+randomNum+'" class="button'+randomNum+'"><div class="arrow-lt'+randomNum+'"></div></div><div id="def-txt'+randomNum+'" class="def'+randomNum+'">Deficiency</div><div id="button-rt'+randomNum+'" class="button'+randomNum+'"><div class="arrow-rt'+randomNum+'"></div></div></div>';
         let colorToggleStyle = '';
         let selectors = {
@@ -28,17 +38,6 @@ var colorBlindnessTool = (function() {
         }
 
         return {html: colorToggleHtml, style: colorToggleStyle, arrowLeftBtn: 'button-lt'+randomNum, arrowRightBtn: 'button-rt'+randomNum, txtId: 'def-txt'+randomNum};
-    };
-
-    /**
-     * Get details on a/all color deficiency/deficiencies
-     *
-     * @param {string} colorDeficiency
-     * @returns {{deficiencyName: string, description: string, visibleColors: [string], hiddenColors: [string]}}
-     */
-    let getColorDeficiencyDetails = function ( colorDeficiency ) {
-
-        return {};
     };
 
     /**
@@ -102,16 +101,6 @@ var colorBlindnessTool = (function() {
         let colorToggle = buildColorToggle();
         let deficiencyIndex = 0;
         let statusMessage = {events:{}};
-        let colorDeficiencies = [
-            'Red-Weak/Protanomaly',
-            'Green-Weak/Deuteranomaly',
-            'Blue-Weak/Tritanomaly',
-            'Red-Blind/Protanopia',
-            'Green-Blind/Deuteranopia',
-            'Blue-Blind/Tritanopia',
-            'Monochromacy/Achromatopsia',
-            'Blue Cone Monochromacy'
-        ];
         style.type = 'text/css';
         style.appendChild(document.createTextNode(colorToggle.style));
         document.getElementsByTagName('head')[0].appendChild(style);
@@ -166,7 +155,6 @@ var colorBlindnessTool = (function() {
 
     return {
         init: init,
-        getDetails: getColorDeficiencyDetails,
         convertColor: convertColorToDeficiency,
         convertImage: convertImageToDeficiency,
         convertElement: convertElementToDeficiency,
