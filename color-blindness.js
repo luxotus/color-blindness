@@ -63,31 +63,34 @@ const colorBlindnessTool = (function () {
     };
   };
 
-  const rgb2xyz = function () {
-    this.x = (0.430574 * this.r + 0.341550 * this.g + 0.178325 * this.b);
-    this.y = (0.222015 * this.r + 0.706655 * this.g + 0.071330 * this.b);
-    this.z = (0.020183 * this.r + 0.129553 * this.g + 0.939180 * this.b);
+  // const rgb2xyz = function () {
+  //   this.x = (0.430574 * this.r + 0.341550 * this.g + 0.178325 * this.b);
+  //   this.y = (0.222015 * this.r + 0.706655 * this.g + 0.071330 * this.b);
+  //   this.z = (0.020183 * this.r + 0.129553 * this.g + 0.939180 * this.b);
 
-    return this;
-  };
+  //   return this;
+  // };
 
-  const xyz2rgb = function () {
-    this.r = (3.063218 * this.x - 1.393325 * this.y - 0.475802 * this.z);
-    this.g = (-0.969243 * this.x + 1.875966 * this.y + 0.041555 * this.z);
-    this.b = (0.067871 * this.x - 0.228834 * this.y + 1.069251 * this.z);
+  // const xyz2rgb = function () {
+  //   this.r = (3.063218 * this.x - 1.393325 * this.y - 0.475802 * this.z);
+  //   this.g = (-0.969243 * this.x + 1.875966 * this.y + 0.041555 * this.z);
+  //   this.b = (0.067871 * this.x - 0.228834 * this.y + 1.069251 * this.z);
 
-    return this;
-  };
+  //   return this;
+  // };
 
-  const anomylize = function (a, b) {
+  const anomalize = function (a, b) {
     const v = 1.75;
     const d = v * 1 + 1;
+    const color = [];
 
-    return [
-      (v * b[0] + a[0] * 1) / d,
-      (v * b[1] + a[1] * 1) / d,
-      (v * b[2] + a[2] * 1) / d,
-    ];
+    if (a.length === b.length) {
+      for (let index = 0; index < a.length; index += 1) {
+        color.push((v * b[index] + a[index] * 1) / d);
+      }
+    }
+
+    return color;
   };
 
   const monochrome = function (r) {
@@ -138,36 +141,38 @@ const colorBlindnessTool = (function () {
       const wy = 0.329016;
       const wz = 0.358271;
 
-      function Color() {
-        this.rgb_from_xyz = xyz2rgb;
-        this.xyz_from_rgb = rgb2xyz;
-      }
-
-      const blue = r[2];
-      const green = r[1];
-      const red = r[0];
-      const c = new Color();
-
-      c.r = (red / 255) ** gamma;
-      c.g = (green / 255) ** gamma;
-      c.b = (blue / 255) ** gamma;
-      c.xyz_from_rgb();
-
+      const blue = (r[2] / 255) ** gamma;
+      const green = (r[1] / 255) ** gamma;
+      const red = (r[0] / 255) ** gamma;
+      const c = {
+        x: (0.430574 * red + 0.341550 * green + 0.178325 * blue),
+        y: (0.222015 * red + 0.706655 * green + 0.071330 * blue),
+        z: (0.020183 * red + 0.129553 * green + 0.939180 * blue),
+        u: 0,
+        v: 0,
+      };
       const sumXYZ = c.x + c.y + c.z;
-      c.u = 0;
-      c.v = 0;
 
       if (sumXYZ !== 0) {
         c.u = c.x / sumXYZ;
         c.v = c.y / sumXYZ;
       }
 
+      const getRGBFromXYZ = function (x, y, zc) {
+        return {
+          r: (3.063218 * x - 1.393325 * y - 0.475802 * zc),
+          g: (-0.969243 * x + 1.875966 * y + 0.041555 * zc),
+          b: (0.067871 * x - 0.228834 * y + 1.069251 * zc),
+        };
+      };
+
+      let clm;
       const nx = wx * c.y / wy;
       const nz = wz * c.y / wy;
-      let clm;
-      const s = new Color();
-      const d = new Color();
-      d.y = 0;
+      const s = {};
+      const d = {
+        y: 0,
+      };
 
       if (c.u < rBlind[t].cpx) {
         clm = (rBlind[t].cpy - c.v) / (rBlind[t].cpx - c.u);
@@ -182,37 +187,46 @@ const colorBlindnessTool = (function () {
       s.x = d.u * c.y / d.v;
       s.y = c.y;
       s.z = (1 - (d.u + d.v)) * c.y / d.v;
-      s.rgb_from_xyz();
+      s.color = getRGBFromXYZ(s.x, s.y, s.z);
 
       d.x = nx - s.x;
       d.z = nz - s.z;
-      d.rgb_from_xyz();
+      d.color = getRGBFromXYZ(d.x, d.y, d.z);
 
-      const adjr = d.r ? ((s.r < 0 ? 0 : 1) - s.r) / d.r : 0;
-      const adjg = d.g ? ((s.g < 0 ? 0 : 1) - s.g) / d.g : 0;
-      const adjb = d.b ? ((s.b < 0 ? 0 : 1) - s.b) / d.b : 0;
+      const adjr = d.color.r ? ((s.color.r < 0 ? 0 : 1) - s.color.r) / d.color.r : 0;
+      const adjg = d.color.g ? ((s.color.g < 0 ? 0 : 1) - s.color.g) / d.color.g : 0;
+      const adjb = d.color.b ? ((s.color.b < 0 ? 0 : 1) - s.color.b) / d.color.b : 0;
+      const adjSample = [
+        ((adjr > 1 || adjr < 0) ? 0 : adjr),
+        ((adjg > 1 || adjg < 0) ? 0 : adjg),
+        ((adjb > 1 || adjb < 0) ? 0 : adjb),
+      ];
+      const adjust = Math.max(...adjSample);
 
-      const adjust = Math.max(((adjr > 1 || adjr < 0) ? 0 : adjr),
-        ((adjg > 1 || adjg < 0) ? 0 : adjg), ((adjb > 1 || adjb < 0) ? 0 : adjb));
+      s.color.r += (adjust * d.color.r);
+      s.color.g += (adjust * d.color.g);
+      s.color.b += (adjust * d.color.b);
 
-      s.r += (adjust * d.r);
-      s.g += (adjust * d.g);
-      s.b += (adjust * d.b);
-
-      function z(v) {
+      function gammaCorrection(colorValue) {
         let total = 0;
 
-        if (v > 0) {
-          total = v >= 1 ? 1 : v ** (1 / gamma);
+        if (colorValue > 0) {
+          total = (colorValue >= 1) ? 1 : colorValue ** (1 / gamma);
         }
 
         return 255 * total;
       }
 
+      const finalColor = {
+        red: gammaCorrection(s.color.r),
+        green: gammaCorrection(s.color.g),
+        blue: gammaCorrection(s.color.b),
+      };
+
       return [
-        z(s.r),
-        z(s.g),
-        z(s.b),
+        finalColor.red,
+        finalColor.green,
+        finalColor.blue,
       ];
     };
 
@@ -224,25 +238,25 @@ const colorBlindnessTool = (function () {
         return blindMK(v, 'protan');
       },
       Protanomaly(v) {
-        return anomylize(v, blindMK(v, 'protan'));
+        return anomalize(v, blindMK(v, 'protan'));
       },
       Deuteranopia(v) {
         return blindMK(v, 'deutan');
       },
       Deuteranomaly(v) {
-        return anomylize(v, blindMK(v, 'deutan'));
+        return anomalize(v, blindMK(v, 'deutan'));
       },
       Tritanopia(v) {
         return blindMK(v, 'tritan');
       },
       Tritanomaly(v) {
-        return anomylize(v, blindMK(v, 'tritan'));
+        return anomalize(v, blindMK(v, 'tritan'));
       },
       Achromatopsia(v) {
         return monochrome(v);
       },
       Achromatomaly(v) {
-        return anomylize(v, monochrome(v));
+        return anomalize(v, monochrome(v));
       },
     };
 

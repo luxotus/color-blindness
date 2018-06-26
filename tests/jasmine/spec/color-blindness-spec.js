@@ -19,7 +19,7 @@ describe('Color Blindness Tool', () => {
   // convertColor ( color, deficiency )
   describe('Convert color to how it would be perceived by a color deficiency', () => {
     it('', () => {
-      expect(colorBlindnessTool.convertColor()).toBe('');
+      expect(colorBlindnessTool.convertColor('rgb(255, 0, 0)')).toBe('rgb(185, 82, 17)');
     });
   });
 
