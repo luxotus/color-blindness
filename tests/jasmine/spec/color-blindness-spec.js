@@ -18,9 +18,13 @@ describe('Color Blindness Tool', () => {
 
   // convertColor ( color, deficiency )
   describe('Convert color to how it would be perceived by a color deficiency', () => {
-    it('', () => {
-      expect(colorBlindnessTool.convertColor('rgb(255, 0, 0)')).toBe('rgb(185, 82, 17)');
+    it('Using an array', () => {
+      expect(colorBlindnessTool.convertColor([255, 0, 0], 'Protanomaly')).toBe('rgb(185, 82, 17)');
     });
+
+    // it('Using a string', () => {
+    //   expect(colorBlindnessTool.convertColor('rgb(255, 0, 0)')).toBe('rgb(185, 82, 17)');
+    // });
   });
 
   // convertImage ( image, deficiency )

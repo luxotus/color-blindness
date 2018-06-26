@@ -63,22 +63,6 @@ const colorBlindnessTool = (function () {
     };
   };
 
-  // const rgb2xyz = function () {
-  //   this.x = (0.430574 * this.r + 0.341550 * this.g + 0.178325 * this.b);
-  //   this.y = (0.222015 * this.r + 0.706655 * this.g + 0.071330 * this.b);
-  //   this.z = (0.020183 * this.r + 0.129553 * this.g + 0.939180 * this.b);
-
-  //   return this;
-  // };
-
-  // const xyz2rgb = function () {
-  //   this.r = (3.063218 * this.x - 1.393325 * this.y - 0.475802 * this.z);
-  //   this.g = (-0.969243 * this.x + 1.875966 * this.y + 0.041555 * this.z);
-  //   this.b = (0.067871 * this.x - 0.228834 * this.y + 1.069251 * this.z);
-
-  //   return this;
-  // };
-
   const anomalize = function (a, b) {
     const v = 1.75;
     const d = v * 1 + 1;
@@ -103,17 +87,30 @@ const colorBlindnessTool = (function () {
     ];
   };
 
-  /**
-   * Convert color to a specified color deficiency and convert it into specified deficiency
-   * Source of the original code can be found here http://web.archive.org/web/20090318054431/http://www.nofunc.com/Color_Blindness_Library
-   * Original source code has needed major modifications, source code breaks with multiple errors.
-   * Also did the research and adjusted copunctal point u -> x & v -> y coordinate. https://www.researchgate.net/publication/228970453_Multispectral_Analysis_of_Color_Vision_Deficiency_Tests?_sg=YIBGSXUXc4OmrRau6DXvjSTp6_1mEKWU_us2d2hZCc2FLIRCIaDi6J94kWEIz0d15I8QRThk3A
-   *
-   * @param {string} color
-   * @param {string} deficiency
-   * @returns {string} converted rgb()
-   */
-  const convertColorToDeficiency = function (color, deficiency) {
+  const getRGBFromXYZ = function (x, y, z) {
+    return {
+      r: (3.063218 * x - 1.393325 * y - 0.475802 * z),
+      g: (-0.969243 * x + 1.875966 * y + 0.041555 * z),
+      b: (0.067871 * x - 0.228834 * y + 1.069251 * z),
+    };
+  };
+
+  const blindMK = function (r, t) {
+    const gamma = 2.2;
+    const wx = 0.312713;
+    const wy = 0.329016;
+    const wz = 0.358271;
+    const blue = (r[2] / 255) ** gamma;
+    const green = (r[1] / 255) ** gamma;
+    const red = (r[0] / 255) ** gamma;
+    const c = {
+      x: (0.430574 * red + 0.341550 * green + 0.178325 * blue),
+      y: (0.222015 * red + 0.706655 * green + 0.071330 * blue),
+      z: (0.020183 * red + 0.129553 * green + 0.939180 * blue),
+      u: 0,
+      v: 0,
+    };
+    const sumXYZ = c.x + c.y + c.z;
     const rBlind = {
       protan: {
         cpx: 0.7465,
@@ -135,101 +132,86 @@ const colorBlindnessTool = (function () {
       },
     };
 
-    const blindMK = function (r, t) {
-      const gamma = 2.2;
-      const wx = 0.312713;
-      const wy = 0.329016;
-      const wz = 0.358271;
+    if (sumXYZ !== 0) {
+      c.u = c.x / sumXYZ;
+      c.v = c.y / sumXYZ;
+    }
 
-      const blue = (r[2] / 255) ** gamma;
-      const green = (r[1] / 255) ** gamma;
-      const red = (r[0] / 255) ** gamma;
-      const c = {
-        x: (0.430574 * red + 0.341550 * green + 0.178325 * blue),
-        y: (0.222015 * red + 0.706655 * green + 0.071330 * blue),
-        z: (0.020183 * red + 0.129553 * green + 0.939180 * blue),
-        u: 0,
-        v: 0,
-      };
-      const sumXYZ = c.x + c.y + c.z;
-
-      if (sumXYZ !== 0) {
-        c.u = c.x / sumXYZ;
-        c.v = c.y / sumXYZ;
-      }
-
-      const getRGBFromXYZ = function (x, y, zc) {
-        return {
-          r: (3.063218 * x - 1.393325 * y - 0.475802 * zc),
-          g: (-0.969243 * x + 1.875966 * y + 0.041555 * zc),
-          b: (0.067871 * x - 0.228834 * y + 1.069251 * zc),
-        };
-      };
-
-      let clm;
-      const nx = wx * c.y / wy;
-      const nz = wz * c.y / wy;
-      const s = {};
-      const d = {
-        y: 0,
-      };
-
-      if (c.u < rBlind[t].cpx) {
-        clm = (rBlind[t].cpy - c.v) / (rBlind[t].cpx - c.u);
-      } else {
-        clm = (c.v - rBlind[t].cpy) / (c.u - rBlind[t].cpx);
-      }
-
-      const clyi = c.v - c.u * clm;
-      d.u = (rBlind[t].ayi - clyi) / (clm - rBlind[t].am);
-      d.v = (clm * d.u) + clyi;
-
-      s.x = d.u * c.y / d.v;
-      s.y = c.y;
-      s.z = (1 - (d.u + d.v)) * c.y / d.v;
-      s.color = getRGBFromXYZ(s.x, s.y, s.z);
-
-      d.x = nx - s.x;
-      d.z = nz - s.z;
-      d.color = getRGBFromXYZ(d.x, d.y, d.z);
-
-      const adjr = d.color.r ? ((s.color.r < 0 ? 0 : 1) - s.color.r) / d.color.r : 0;
-      const adjg = d.color.g ? ((s.color.g < 0 ? 0 : 1) - s.color.g) / d.color.g : 0;
-      const adjb = d.color.b ? ((s.color.b < 0 ? 0 : 1) - s.color.b) / d.color.b : 0;
-      const adjSample = [
-        ((adjr > 1 || adjr < 0) ? 0 : adjr),
-        ((adjg > 1 || adjg < 0) ? 0 : adjg),
-        ((adjb > 1 || adjb < 0) ? 0 : adjb),
-      ];
-      const adjust = Math.max(...adjSample);
-
-      s.color.r += (adjust * d.color.r);
-      s.color.g += (adjust * d.color.g);
-      s.color.b += (adjust * d.color.b);
-
-      function gammaCorrection(colorValue) {
-        let total = 0;
-
-        if (colorValue > 0) {
-          total = (colorValue >= 1) ? 1 : colorValue ** (1 / gamma);
-        }
-
-        return 255 * total;
-      }
-
-      const finalColor = {
-        red: gammaCorrection(s.color.r),
-        green: gammaCorrection(s.color.g),
-        blue: gammaCorrection(s.color.b),
-      };
-
-      return [
-        finalColor.red,
-        finalColor.green,
-        finalColor.blue,
-      ];
+    let slope;
+    const nx = wx * c.y / wy;
+    const nz = wz * c.y / wy;
+    const s = {};
+    const d = {
+      y: 0,
     };
 
+    if (c.u < rBlind[t].cpx) {
+      slope = (rBlind[t].cpy - c.v) / (rBlind[t].cpx - c.u);
+    } else {
+      slope = (c.v - rBlind[t].cpy) / (c.u - rBlind[t].cpx);
+    }
+
+    const clyi = c.v - c.u * slope;
+    d.u = (rBlind[t].ayi - clyi) / (slope - rBlind[t].am);
+    d.v = (slope * d.u) + clyi;
+
+    s.x = d.u * c.y / d.v;
+    s.y = c.y;
+    s.z = (1 - (d.u + d.v)) * c.y / d.v;
+    s.color = getRGBFromXYZ(s.x, s.y, s.z);
+
+    d.x = nx - s.x;
+    d.z = nz - s.z;
+    d.color = getRGBFromXYZ(d.x, d.y, d.z);
+
+    const adjr = d.color.r ? ((s.color.r < 0 ? 0 : 1) - s.color.r) / d.color.r : 0;
+    const adjg = d.color.g ? ((s.color.g < 0 ? 0 : 1) - s.color.g) / d.color.g : 0;
+    const adjb = d.color.b ? ((s.color.b < 0 ? 0 : 1) - s.color.b) / d.color.b : 0;
+    const adjSample = [
+      ((adjr > 1 || adjr < 0) ? 0 : adjr),
+      ((adjg > 1 || adjg < 0) ? 0 : adjg),
+      ((adjb > 1 || adjb < 0) ? 0 : adjb),
+    ];
+    const adjust = Math.max(...adjSample);
+
+    s.color.r += (adjust * d.color.r);
+    s.color.g += (adjust * d.color.g);
+    s.color.b += (adjust * d.color.b);
+
+    function gammaCorrection(colorValue) {
+      let total = 0;
+
+      if (colorValue > 0) {
+        total = (colorValue >= 1) ? 1 : colorValue ** (1 / gamma);
+      }
+
+      return 255 * total;
+    }
+
+    const finalColor = {
+      red: gammaCorrection(s.color.r),
+      green: gammaCorrection(s.color.g),
+      blue: gammaCorrection(s.color.b),
+    };
+
+    return [
+      finalColor.red,
+      finalColor.green,
+      finalColor.blue,
+    ];
+  };
+
+  /**
+   * Convert color to a specified color deficiency and convert it into specified deficiency
+   * Source of the original code can be found here http://web.archive.org/web/20090318054431/http://www.nofunc.com/Color_Blindness_Library
+   * Original source code has needed major modifications, source code breaks with multiple errors.
+   * Also did the research and adjusted copunctal point u -> x & v -> y coordinate. https://www.researchgate.net/publication/228970453_Multispectral_Analysis_of_Color_Vision_Deficiency_Tests?_sg=YIBGSXUXc4OmrRau6DXvjSTp6_1mEKWU_us2d2hZCc2FLIRCIaDi6J94kWEIz0d15I8QRThk3A
+   *
+   * @param {string} color
+   * @param {string} deficiency
+   * @returns {string} converted rgb()
+   */
+  const convertColorToDeficiency = function (color, deficiency) {
     const fBlind = {
       Normal(v) {
         return v;
@@ -259,10 +241,21 @@ const colorBlindnessTool = (function () {
         return anomalize(v, monochrome(v));
       },
     };
+    let rgbArr = [];
+    let rgbStr = '';
 
-    console.table(fBlind.Protanomaly([255, 0, 0]));
+    if (Object.prototype.hasOwnProperty.call(fBlind, deficiency)) {
+      rgbArr = fBlind[deficiency](color);
+      rgbArr = rgbArr.map(x => Math.round(x));
+    }
 
-    return '';
+    if (rgbArr.length === 3) {
+      rgbStr = `rgb(${rgbArr[0]}, ${rgbArr[1]}, ${rgbArr[2]})`;
+    }
+
+    console.log(rgbStr);
+
+    return rgbStr;
   };
 
   /**
