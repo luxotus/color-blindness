@@ -243,17 +243,22 @@ const colorBlindnessTool = (function () {
     };
     let rgbArr = [];
     let rgbStr = '';
+    const colorMatches = color.match(/rgb[a]?\(([0-9]{1,3}), ([0-9]{1,3}), ([0-9]{1,3}),? ?(1|0\.[0-9]{1,})?\)/);
 
-    if (Object.prototype.hasOwnProperty.call(fBlind, deficiency)) {
-      rgbArr = fBlind[deficiency](color);
+    // console.log(colorMatches);
+
+    if (colorMatches.length && Object.prototype.hasOwnProperty.call(fBlind, deficiency)) {
+      rgbArr = fBlind[deficiency]([
+        parseInt(colorMatches[1], 10),
+        parseInt(colorMatches[2], 10),
+        parseInt(colorMatches[3], 10),
+      ]);
       rgbArr = rgbArr.map(x => Math.round(x));
     }
 
     if (rgbArr.length === 3) {
       rgbStr = `rgb(${rgbArr[0]}, ${rgbArr[1]}, ${rgbArr[2]})`;
     }
-
-    console.log(rgbStr);
 
     return rgbStr;
   };
