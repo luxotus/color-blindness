@@ -4,6 +4,7 @@
 /* eslint no-unused-vars: ["error", { "vars": "local" }] */
 /* eslint prefer-destructuring: ["error", {VariableDeclarator: {object: true}}] */
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "colorBlindnessTool" }] */
+/* eslint no-bitwise: ["error", { "allow": ["&", ">>"] }] */
 
 const colorBlindnessTool = (function () {
   let debugMode = true;
@@ -273,14 +274,245 @@ const colorBlindnessTool = (function () {
   };
 
   /**
-   * Convert colors on an image to a specified deficiency
+   * Source https://github.com/luxotus/color-contrast/blob/master/color-contrast.js
+   * Grabs rgb values from color names
    *
-   * @param {obj} image
-   * @param {string} deficiency
-   * @returns status message
+   * @param {string} colorName - html defined color names
+   * @returns {string} rgb(#,#,#)
+  */
+  const colorNamesToRGB = function (colorName) {
+    let colorStr = '';
+    const color = {
+      aliceblue: 'rgb(240, 248, 255)',
+      antiquewhite: 'rgb(250, 235, 215)',
+      aqua: 'rgb(0, 255, 255)',
+      aquamarine: 'rgb(127, 255, 212)',
+      azure: 'rgb(240, 255, 255)',
+      beige: 'rgb(245, 245, 220)',
+      bisque: 'rgb(255, 228, 196)',
+      black: 'rgb(0, 0, 0)',
+      blanchedalmond: 'rgb(255, 235, 205)',
+      blue: 'rgb(0, 0, 255)',
+      blueviolet: 'rgb(138, 43, 226)',
+      brown: 'rgb(165, 42, 42)',
+      burlywood: 'rgb(222, 184, 135)',
+      cadetblue: 'rgb(95, 158, 160)',
+      chartreuse: 'rgb(127, 255, 0)',
+      chocolate: 'rgb(210, 105, 30)',
+      coral: 'rgb(255, 127, 80)',
+      cornflowerblue: 'rgb(100, 149, 237)',
+      cornsilk: 'rgb(255, 248, 220)',
+      crimson: 'rgb(220, 20, 60)',
+      cyan: 'rgb(0, 255, 255)',
+      darkblue: 'rgb(0, 0, 139)',
+      darkcyan: 'rgb(0, 139, 139)',
+      darkgoldenrod: 'rgb(184, 134, 11)',
+      darkgray: 'rgb(169, 169, 169)',
+      darkgrey: 'rgb(169, 169, 169)',
+      darkgreen: 'rgb(0, 100, 0)',
+      darkkhaki: 'rgb(189, 183, 107)',
+      darkmagenta: 'rgb(139, 0, 139)',
+      darkolivegreen: 'rgb(85, 107, 47)',
+      darkorange: 'rgb(255, 140, 0)',
+      darkorchid: 'rgb(153, 50, 204)',
+      darkred: 'rgb(139, 0, 0)',
+      darksalmon: 'rgb(233, 150, 122)',
+      darkseagreen: 'rgb(143, 188, 143)',
+      darkslateblue: 'rgb(72, 61, 139)',
+      darkslategray: 'rgb(47, 79, 79)',
+      darkslategrey: 'rgb(47, 79, 79)',
+      darkturquoise: 'rgb(0, 206, 209)',
+      darkviolet: 'rgb(148, 0, 211)',
+      deeppink: 'rgb(255, 20, 147)',
+      deepskyblue: 'rgb(0, 191, 255)',
+      dimgray: 'rgb(105, 105, 105)',
+      dimgrey: 'rgb(105, 105, 105)',
+      dodgerblue: 'rgb(30, 144, 255)',
+      firebrick: 'rgb(178, 34, 34)',
+      floralwhite: 'rgb(255, 250, 240)',
+      forestgreen: 'rgb(34, 139, 34)',
+      fuchsia: 'rgb(255, 0, 255)',
+      gainsboro: 'rgb(220, 220, 220)',
+      ghostwhite: 'rgb(248, 248, 255)',
+      gold: 'rgb(255, 215, 0)',
+      goldenrod: 'rgb(218, 165, 32)',
+      gray: 'rgb(128, 128, 128)',
+      grey: 'rgb(128, 128, 128)',
+      green: 'rgb(0, 128, 0)',
+      greenyellow: 'rgb(173, 255, 47)',
+      honeydew: 'rgb(240, 255, 240)',
+      hotpink: 'rgb(255, 105, 180)',
+      indianred: 'rgb(205, 92, 92)',
+      indigo: 'rgb(75, 0, 130)',
+      ivory: 'rgb(255, 255, 240)',
+      khaki: 'rgb(240, 230, 140)',
+      lavender: 'rgb(230, 230, 250)',
+      lavenderblush: 'rgb(255, 240, 245)',
+      lawngreen: 'rgb(124, 252, 0)',
+      lemonchiffon: 'rgb(255, 250, 205)',
+      lightblue: 'rgb(173, 216, 230)',
+      lightcoral: 'rgb(240, 128, 128)',
+      lightcyan: 'rgb(224, 255, 255)',
+      lightgoldenrodyellow: 'rgb(250, 250, 210)',
+      lightgray: 'rgb(211, 211, 211)',
+      lightgrey: 'rgb(211, 211, 211)',
+      lightgreen: 'rgb(144, 238, 144)',
+      lightpink: 'rgb(255, 182, 193)',
+      lightsalmon: 'rgb(255, 160, 122)',
+      lightseagreen: 'rgb(32, 178, 170)',
+      lightskyblue: 'rgb(135, 206, 250)',
+      lightslategray: 'rgb(119, 136, 153)',
+      lightslategrey: 'rgb(119, 136, 153)',
+      lightsteelblue: 'rgb(176, 196, 222)',
+      lightyellow: 'rgb(255, 255, 224)',
+      lime: 'rgb(0, 255, 0)',
+      limegreen: 'rgb(50, 205, 50)',
+      linen: 'rgb(250, 240, 230)',
+      magenta: 'rgb(255, 0, 255)',
+      maroon: 'rgb(128, 0, 0)',
+      mediumaquamarine: 'rgb(102, 205, 170)',
+      mediumblue: 'rgb(0, 0, 205)',
+      mediumorchid: 'rgb(186, 85, 211)',
+      mediumpurple: 'rgb(147, 112, 219)',
+      mediumseagreen: 'rgb(60, 179, 113)',
+      mediumslateblue: 'rgb(123, 104, 238)',
+      mediumspringgreen: 'rgb(0, 250, 154)',
+      mediumturquoise: 'rgb(72, 209, 204)',
+      mediumvioletred: 'rgb(199, 21, 133)',
+      midnightblue: 'rgb(25, 25, 112)',
+      mintcream: 'rgb(245, 255, 250)',
+      mistyrose: 'rgb(255, 228, 225)',
+      moccasin: 'rgb(255, 228, 181)',
+      navajowhite: 'rgb(255, 222, 173)',
+      navy: 'rgb(0, 0, 128)',
+      oldlace: 'rgb(253, 245, 230)',
+      olive: 'rgb(128, 128, 0)',
+      olivedrab: 'rgb(107, 142, 35)',
+      orange: 'rgb(255, 165, 0)',
+      orangered: 'rgb(255, 69, 0)',
+      orchid: 'rgb(218, 112, 214)',
+      palegoldenrod: 'rgb(238, 232, 170)',
+      palegreen: 'rgb(152, 251, 152)',
+      paleturquoise: 'rgb(175, 238, 238)',
+      palevioletred: 'rgb(219, 112, 147)',
+      papayawhip: 'rgb(255, 239, 213)',
+      peachpuff: 'rgb(255, 218, 185)',
+      peru: 'rgb(205, 133, 63)',
+      pink: 'rgb(255, 192, 203)',
+      plum: 'rgb(221, 160, 221)',
+      powderblue: 'rgb(176, 224, 230)',
+      purple: 'rgb(128, 0, 128)',
+      rebeccapurple: 'rgb(102, 51, 153)',
+      red: 'rgb(255, 0, 0)',
+      rosybrown: 'rgb(188, 143, 143)',
+      royalblue: 'rgb(65, 105, 225)',
+      saddlebrown: 'rgb(139, 69, 19)',
+      salmon: 'rgb(250, 128, 114)',
+      sandybrown: 'rgb(244, 164, 96)',
+      seagreen: 'rgb(46, 139, 87)',
+      seashell: 'rgb(255, 245, 238)',
+      sienna: 'rgb(160, 82, 45)',
+      silver: 'rgb(192, 192, 192)',
+      skyblue: 'rgb(135, 206, 235)',
+      slateblue: 'rgb(106, 90, 205)',
+      slategray: 'rgb(112, 128, 144)',
+      slategrey: 'rgb(112, 128, 144)',
+      snow: 'rgb(255, 250, 250)',
+      springgreen: 'rgb(0, 255, 127)',
+      steelblue: 'rgb(70, 130, 180)',
+      tan: 'rgb(210, 180, 140)',
+      teal: 'rgb(0, 128, 128)',
+      thistle: 'rgb(216, 191, 216)',
+      tomato: 'rgb(255, 99, 71)',
+      turquoise: 'rgb(64, 224, 208)',
+      violet: 'rgb(238, 130, 238)',
+      wheat: 'rgb(245, 222, 179)',
+      white: 'rgb(255, 255, 255)',
+      whitesmoke: 'rgb(245, 245, 245)',
+      yellow: 'rgb(255, 255, 0)',
+      yellowgreen: 'rgb(154, 205, 50)',
+    };
+
+    if (Object.prototype.hasOwnProperty.call(color, colorName.toLowerCase())) {
+      colorStr = color[colorName];
+    }
+
+    return colorStr;
+  };
+
+  /**
+   * Source https://github.com/luxotus/color-contrast/blob/master/color-contrast.js
+   * Turns hex into a float
+   *
+   * @param {hexadecimal}
+   * @returns {float} alpha between 0-1
+  */
+  const alphaHex = function (hex) {
+    return parseFloat(parseInt((parseInt(hex, 10) / 255) * 1000, 10) / 1000);
+  };
+
+  /**
+   * Source https://github.com/luxotus/color-contrast/blob/master/color-contrast.js
+   * Convert hex into a rgb/rgba color value
+   *
+   * @param {string} hex - this can be in 3 different forms. Ex #000 or #123456 or #123456FF
+   * @returns {string} rgb(#, #, #) / rgba(#, #, #, #)
+  */
+  const hexToRgbA = function (hex) {
+    const color = {};
+
+    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) { // 3 or 6 digit hex color
+      color.rawHex = hex.substring(1).split('');
+
+      if (color.rawHex.length === 3) {
+        color.rawHex = [
+          color.rawHex[0],
+          color.rawHex[0],
+          color.rawHex[1],
+          color.rawHex[1],
+          color.rawHex[2],
+          color.rawHex[2]
+        ];
+      }
+
+      color.rawHex = `0x${color.rawHex.join('')}`; // turning to hex
+      color.red = (color.rawHex >> 16) & 255;
+      color.green = (color.rawHex >> 8) & 255;
+      color.blue = color.rawHex & 255;
+      color.message = `rgb(${[color.red, color.green, color.blue].join(', ')})`;
+    } else if (/^#([A-Fa-f0-9]{4}){1,2}$/.test(hex)) { // 8 digit hex color
+      color.rawHex = hex.substring(1).split('');
+      color.rawHex = `0x${color.rawHex.join('')}`;
+      color.red = (color.rawHex >> 24) & 255;
+      color.green = (color.rawHex >> 16) & 255;
+      color.blue = (color.rawHex >> 8) & 255;
+      color.alpha = alphaHex(color.rawHex & 255);
+      color.message = `rgba(${[color.red, color.green, color.blue].join(', ')}, ${color.alpha})`;
+    } else {
+      color.message = 'Not a valid hex color code.';
+    }
+
+    return color.message;
+  };
+
+  /**
+   * Turn colors into rgb/rgba value
+   *
+   * @param {string} color hex, color-name
+   * @returns {string} rgb or rgba
    */
-  const convertImageToDeficiency = function (image, deficiency) {
-    return '';
+  const convertColorToRGB = function (color) {
+    let rgb = '';
+
+    if (color.includes('rgb')) {
+      rgb = color;
+    } else if (color.includes('#')) {
+      rgb = hexToRgbA(color);
+    } else if (colorNamesToRGB(color) !== '') {
+      rgb = colorNamesToRGB(color);
+    }
+
+    return rgb;
   };
 
   /**
@@ -292,14 +524,32 @@ const colorBlindnessTool = (function () {
    * @returns {string} status message
    */
   const convertElementToDeficiency = function (element, deficiency) {
-
-    // Grab all elements
-
     // check for
     //  *font-color
     //  *background-color
     //  *border-color
+    if (typeof element !== 'undefined') {
+      if (element.style.color.length) {
+        // check if rgb
 
+        // check if color name
+        // if () {
+
+        // }
+        convertColorToDeficiency(element.style.color, deficiency);
+      }
+
+      if (window.getComputedStyle(element, null).getPropertyValue('border-color')) {
+        const borderColor = convertColorToRGB(window.getComputedStyle(element, null).getPropertyValue('border-color'));
+        // Note getComputedStyle can return multiple rgb values in 1 string for border color...
+        // top, right, bottom, left
+        console.log(`After: ${borderColor}`);
+      }
+
+      // if (element.style.backgroundColor.length) {
+
+      // }
+    }
 
     return '';
   };
@@ -312,6 +562,8 @@ const colorBlindnessTool = (function () {
    * @returns {string} status message
    */
   const convertDomToDeficiency = function (deficiency, includeImages) {
+    // Grab all elements
+
     return '';
   };
 
@@ -397,8 +649,8 @@ const colorBlindnessTool = (function () {
   return {
     init: initialize,
     convertColor: convertColorToDeficiency,
-    convertImage: convertImageToDeficiency,
     convertElement: convertElementToDeficiency,
     convertDom: convertDomToDeficiency,
+    convertRGB: convertColorToRGB,
   };
 })();
