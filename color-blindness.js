@@ -3,8 +3,6 @@
 /* eslint func-names: ["error", "never"] */
 /* eslint no-unused-vars: ["error", { "vars": "local" }] */
 /* eslint prefer-destructuring: ["error", {VariableDeclarator: {object: true}}] */
-/* eslint object-curly-newline: ["error", { "consistent": true }] */
-/* eslint-env es6 */
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "colorBlindnessTool" }] */
 
 const colorBlindnessTool = (function () {
@@ -24,43 +22,46 @@ const colorBlindnessTool = (function () {
    * Private function for building toggle using js
    * @returns {string} html with inline css
    */
-  const buildColorToggle = function (togglePosition) {
-    const randomNum = Math.floor(Math.random() * 1000000);
-    const colorToggleHtml = `<div id="def-holder${randomNum}"><div id="button-lt${randomNum}" class="button${randomNum}"><div class="arrow-lt${randomNum}"></div></div><div id="def-txt${randomNum}" class="def${randomNum}">Deficiency</div><div id="button-rt${randomNum}" class="button${randomNum}"><div class="arrow-rt${randomNum}"></div></div></div>`;
+  const buildColorToggle = function (setStyle, togglePosition) {
+    const colorToggleHtml = '<div id="color-deficiency-holder"><div id="deficiency-button-lt" class="deficiency-button"><div class="deficiency-arrow-lt"></div></div><div id="deficiency-txt">Deficiency</div><div id="deficiency-button-rt" class="deficiency-button"><div class="deficiency-arrow-rt"></div></div></div>';
+    const toggle = {
+      html: colorToggleHtml,
+      arrowLeftBtn: 'deficiency-button-lt',
+      arrowRightBtn: 'deficiency-button-rt',
+      txtId: 'deficiency-txt',
+    };
     let colorToggleStyle = '';
     let stylePosition = '';
 
-    if (typeof togglePosition === 'string') {
-      if (togglePosition === 'left') {
-        stylePosition = 'left:0;';
-      } else if (togglePosition === 'right') {
-        stylePosition = 'right:0;';
+    if (setStyle) {
+      if (typeof togglePosition === 'string') {
+        if (togglePosition === 'left') {
+          stylePosition = 'left:0;';
+        } else if (togglePosition === 'right') {
+          stylePosition = 'right:0;';
+        } else {
+          stylePosition = 'left:0;right:0;';
+        }
       } else {
         stylePosition = 'left:0;right:0;';
       }
-    } else {
-      stylePosition = 'left:0;right:0;';
+
+      const selectors = {
+        '#color-deficiency-holder': `display:block;z-index:99999999;height:35px;width:350px;position:absolute;top:0;margin:auto;${stylePosition}border:1px solid #b7b7b7;border-top:none;border-bottom-left-radius:5px;border-bottom-right-radius:5px;background-color:#fff;`,
+        '.deficiency-button': 'position:relative;display:flex;align-items:center;justify-content:center;height:100%;width:25px;float:left;cursor:pointer;',
+        '.deficiency-arrow-lt': 'height:5px;width:5px;border-top:2px solid gray;border-right:2px solid gray;transform:rotate(-135deg);',
+        '.deficiency-arrow-rt': 'height:5px;width:5px;border-top:2px solid gray;border-right:2px solid gray;transform:rotate(45deg);',
+        '#deficiency-txt': 'height:100%;width:300px;position:relative;float:left;line-height:35px;font-size:20px;font-weight:bold;text-align:center;letter-spacing:0.5px;',
+      };
+
+      Object.entries(selectors).forEach((entry) => {
+        colorToggleStyle += `${entry[0]} {${entry[1]}}`;
+      });
+
+      toggle.style = colorToggleStyle;
     }
 
-    const selectors = {
-      '#def-holder': `display:block;z-index:99999999;height:35px;width:350px;position:absolute;top:0;margin:auto;${stylePosition}border:1px solid #b7b7b7;border-top:none;border-bottom-left-radius:5px;border-bottom-right-radius:5px;background-color:#fff;`,
-      '.button': 'position:relative;display:flex;align-items:center;justify-content:center;height:100%;width:25px;float:left;cursor:pointer;',
-      '.arrow-lt': 'height:5px;width:5px;border-top:2px solid gray;border-right:2px solid gray;transform:rotate(-135deg);',
-      '.arrow-rt': 'height:5px;width:5px;border-top:2px solid gray;border-right:2px solid gray;transform:rotate(45deg);',
-      '.def': 'height:100%;width:300px;position:relative;float:left;line-height:35px;font-size:20px;font-weight:bold;text-align:center;constter-spacing:0.5px;',
-    };
-
-    Object.entries(selectors).forEach((entry) => {
-      colorToggleStyle += `${entry[0]}${randomNum} {${entry[1]}}`;
-    });
-
-    return {
-      html: colorToggleHtml,
-      style: colorToggleStyle,
-      arrowLeftBtn: `button-lt${randomNum}`,
-      arrowRightBtn: `button-rt${randomNum}`,
-      txtId: `def-txt${randomNum}`,
-    };
+    return toggle;
   };
 
   const anomalize = function (a, b) {
@@ -244,8 +245,7 @@ const colorBlindnessTool = (function () {
     let rgbArr = [];
     let rgbStr = '';
     const colorMatches = color.match(/rgb[a]?\(([0-9]{1,3}), ([0-9]{1,3}), ([0-9]{1,3}),? ?(1|0\.[0-9]{1,})?\)/);
-
-    // console.log(colorMatches);
+    let transparency = false;
 
     if (colorMatches.length && Object.prototype.hasOwnProperty.call(fBlind, deficiency)) {
       rgbArr = fBlind[deficiency]([
@@ -253,11 +253,20 @@ const colorBlindnessTool = (function () {
         parseInt(colorMatches[2], 10),
         parseInt(colorMatches[3], 10),
       ]);
+
+      if (typeof colorMatches[4] !== 'undefined') {
+        transparency = parseFloat(colorMatches[4], 10);
+      } else {
+        transparency = false;
+      }
+
       rgbArr = rgbArr.map(x => Math.round(x));
     }
 
-    if (rgbArr.length === 3) {
+    if (transparency === false) {
       rgbStr = `rgb(${rgbArr[0]}, ${rgbArr[1]}, ${rgbArr[2]})`;
+    } else {
+      rgbStr = `rgba(${rgbArr[0]}, ${rgbArr[1]}, ${rgbArr[2]}, ${transparency})`;
     }
 
     return rgbStr;
@@ -283,6 +292,15 @@ const colorBlindnessTool = (function () {
    * @returns {string} status message
    */
   const convertElementToDeficiency = function (element, deficiency) {
+
+    // Grab all elements
+
+    // check for
+    //  *font-color
+    //  *background-color
+    //  *border-color
+
+
     return '';
   };
 
@@ -304,17 +322,27 @@ const colorBlindnessTool = (function () {
    * @param {boolean} showDebugMessages
    * @returns {string} status message
    */
-  const initialize = function (togglePosition, includeImages, showDebugMessages) {
-    const styleElement = document.createElement('style');
-    const { txtId, arrowLeftBtn, arrowRightBtn, style, html } = buildColorToggle(togglePosition);
+  const initialize = function (togglePosition, includeStyle, includeImages, showDebugMessages) {
+    const {
+      txtId,
+      arrowLeftBtn,
+      arrowRightBtn,
+      style,
+      html,
+    } = buildColorToggle(true, togglePosition);
     const lastDeficiency = colorDeficiencies.length - 1;
     let deficiencyIndex = 0;
     let statusMessage = {
       events: {},
     };
-    styleElement.type = 'text/css';
-    styleElement.appendChild(document.createTextNode(style));
-    document.getElementsByTagName('head')[0].appendChild(styleElement);
+
+    if (includeStyle) {
+      const styleElement = document.createElement('style');
+      styleElement.type = 'text/css';
+      styleElement.appendChild(document.createTextNode(style));
+      document.getElementsByTagName('head')[0].appendChild(styleElement);
+    }
+
     document.getElementsByTagName('body')[0].innerHTML += html;
     document.getElementById(txtId).innerHTML = colorDeficiencies[0];
 

@@ -5,7 +5,7 @@ describe('Color Blindness Tool', () => {
   // init (colorTogglePosition, includeImages, showDebugMessages )
   describe('Initializing color toggle', () => {
     it('Events Listeners on color toggle buttons are working.', () => {
-      expect(colorBlindnessTool.init('center', false, true)).toEqual(jasmine.objectContaining(
+      expect(colorBlindnessTool.init('center', false, false, true)).toEqual(jasmine.objectContaining(
         {
           events: {
             'left-arrow-btn': 'Success',
