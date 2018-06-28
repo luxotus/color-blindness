@@ -1,11 +1,3 @@
-/* eslint linebreak-style: ["error", "windows"] */
-/* eslint wrap-iife: ["error", "any"] */
-/* eslint func-names: ["error", "never"] */
-/* eslint no-unused-vars: ["error", { "vars": "local" }] */
-/* eslint prefer-destructuring: ["error", {VariableDeclarator: {object: true}}] */
-/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "colorBlindnessTool" }] */
-/* eslint no-bitwise: ["error", { "allow": ["&", ">>"] }] */
-
 const colorBlindnessTool = (function () {
   let domColorUpdated = false;
   const colorDeficiencies = {
@@ -67,6 +59,12 @@ const colorBlindnessTool = (function () {
     return toggle;
   };
 
+  /**
+   * Source of the original code can be found here http://web.archive.org/web/20090318054431/http://www.nofunc.com/Color_Blindness_Library
+   *
+   * @param {*} a
+   * @param {*} b
+   */
   const anomalize = function (a, b) {
     const v = 1.75;
     const d = v * 1 + 1;
@@ -81,6 +79,11 @@ const colorBlindnessTool = (function () {
     return color;
   };
 
+  /**
+   * Source of the original code can be found here http://web.archive.org/web/20090318054431/http://www.nofunc.com/Color_Blindness_Library
+   *
+   * @param {*} r
+   */
   const monochrome = function (r) {
     const z = Math.round(r[0] * 0.299 + r[1] * 0.587 + r[2] * 0.114);
 
@@ -91,6 +94,13 @@ const colorBlindnessTool = (function () {
     ];
   };
 
+  /**
+   * Source of the original code can be found here http://web.archive.org/web/20090318054431/http://www.nofunc.com/Color_Blindness_Library
+   *
+   * @param {*} x
+   * @param {*} y
+   * @param {*} z
+   */
   const getRGBFromXYZ = function (x, y, z) {
     return {
       r: (3.063218 * x - 1.393325 * y - 0.475802 * z),
@@ -99,6 +109,12 @@ const colorBlindnessTool = (function () {
     };
   };
 
+  /**
+   * Source of the original code can be found here http://web.archive.org/web/20090318054431/http://www.nofunc.com/Color_Blindness_Library
+   *
+   * @param {array} rgb
+   * @param {string} color deficiency group
+   */
   const blindMK = function (r, t) {
     const gamma = 2.2;
     const wx = 0.312713;
@@ -523,7 +539,6 @@ const colorBlindnessTool = (function () {
    *
    * @param {obj} element
    * @param {string} deficiency
-   * @returns {string} status message
    */
   const convertElementToDeficiency = function (element, deficiency) {
     if (typeof element !== 'undefined') {
@@ -547,15 +562,12 @@ const colorBlindnessTool = (function () {
         }
       });
     }
-
-    return '';
   };
 
   /**
    * Iterate through the all elements in a dom and pass it to funcition above
    *
    * @param {string} deficiency
-   * @returns {string} status message
    */
   const convertDomToDeficiency = function (deficiency) {
     // Grab all elements
@@ -574,7 +586,6 @@ const colorBlindnessTool = (function () {
     });
 
     domColorUpdated = true;
-    return '';
   };
 
   /**

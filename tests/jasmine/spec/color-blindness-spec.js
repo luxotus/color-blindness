@@ -1,4 +1,3 @@
-/* eslint linebreak-style: ["error", "windows"] */
 /* global colorBlindnessTool:true */
 
 describe('Color Blindness Tool', () => {
