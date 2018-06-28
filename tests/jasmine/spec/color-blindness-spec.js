@@ -2,20 +2,6 @@
 /* global colorBlindnessTool:true */
 
 describe('Color Blindness Tool', () => {
-  // init (colorTogglePosition, includeImages, showDebugMessages )
-  describe('Initializing color toggle', () => {
-    it('Events Listeners on color toggle buttons are working.', () => {
-      expect(colorBlindnessTool.init('center', false, false, true)).toEqual(jasmine.objectContaining(
-        {
-          events: {
-            'left-arrow-btn': 'Success',
-            'right-arrow-btn': 'Success',
-          },
-        },
-      ));
-    });
-  });
-
   describe('Convert color to how it would be perceived by a color deficiency', () => {
     describe('rgb', () => {
       describe('Normal', () => {
@@ -106,15 +92,15 @@ describe('Color Blindness Tool', () => {
           expect(colorBlindnessTool.convertColor('rgb(0, 0, 255)', 'Achromatopsia')).toBe('rgb(29, 29, 29)');
         });
       });
-      describe('Achromatomaly', () => {
+      describe('Achromatically', () => {
         it('Red', () => {
-          expect(colorBlindnessTool.convertColor('rgb(255, 0, 0)', 'Achromatomaly')).toBe('rgb(141, 48, 48)');
+          expect(colorBlindnessTool.convertColor('rgb(255, 0, 0)', 'Achromatically')).toBe('rgb(141, 48, 48)');
         });
         it('Green', () => {
-          expect(colorBlindnessTool.convertColor('rgb(0, 255, 0)', 'Achromatomaly')).toBe('rgb(95, 188, 95)');
+          expect(colorBlindnessTool.convertColor('rgb(0, 255, 0)', 'Achromatically')).toBe('rgb(95, 188, 95)');
         });
         it('Blue', () => {
-          expect(colorBlindnessTool.convertColor('rgb(0, 0, 255)', 'Achromatomaly')).toBe('rgb(18, 18, 111)');
+          expect(colorBlindnessTool.convertColor('rgb(0, 0, 255)', 'Achromatically')).toBe('rgb(18, 18, 111)');
         });
       });
     });
@@ -156,11 +142,11 @@ describe('Color Blindness Tool', () => {
   });
 
   // convertElement ( element, deficiency )
-  describe('Convert element to how it would be perceived by a color deficiency', () => {
-    it('', () => {
-      expect(colorBlindnessTool.convertElement()).toBe('');
-    });
-  });
+  // describe('Convert element to how it would be perceived by a color deficiency', () => {
+  //   it('', () => {
+  //     expect(colorBlindnessTool.convertElement()).toBe('');
+  //   });
+  // });
 
   // convertRGB ( color )
   describe('Convert a hex or color-name into a rgb/rgba', () => {
@@ -190,13 +176,6 @@ describe('Color Blindness Tool', () => {
       it('rgba(255, 78, 255, 0.75)', () => {
         expect(colorBlindnessTool.convertRGB('rgba(255, 78, 255, 0.75)')).toBe('rgba(255, 78, 255, 0.75)');
       });
-    });
-  });
-
-  // convertDom ( deficiency, includeImages )
-  describe('Converts all colors/images on a dom to how it would be perceived by a color deficiency', () => {
-    it('', () => {
-      expect(colorBlindnessTool.convertDom()).toBe('');
     });
   });
 });

@@ -55,4 +55,5 @@
 /* Testing */
 .jasmine-symbol-summary {
   border-left-color: red;
+  background: blueviolet;
 }

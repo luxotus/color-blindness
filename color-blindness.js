@@ -7,17 +7,19 @@
 /* eslint no-bitwise: ["error", { "allow": ["&", ">>"] }] */
 
 const colorBlindnessTool = (function () {
-  let debugMode = true;
-  const colorDeficiencies = [
-    'Red-Weak/Protanomaly',
-    'Green-Weak/Deuteranomaly',
-    'Blue-Weak/Tritanomaly',
-    'Red-Blind/Protanopia',
-    'Green-Blind/Deuteranopia',
-    'Blue-Blind/Tritanopia',
-    'Monochromacy/Achromatopsia',
-    'Blue Cone Monochromacy',
-  ];
+  let domColorUpdated = false;
+  const colorDeficiencies = {
+    Normal: 'Normal',
+    'Red-Weak/Protanomaly': 'Protanomaly',
+    'Green-Weak/Deuteranomaly': 'Deuteranomaly',
+    'Blue-Weak/Tritanomaly': 'Tritanomaly',
+    'Red-Blind/Protanopia': 'Protanopia',
+    'Green-Blind/Deuteranopia': 'Deuteranopia',
+    'Blue-Blind/Tritanopia': 'Tritanopia',
+    'Monochromacy/Achromatopsia': 'Achromatopsia',
+    Achromatically: 'Achromatically',
+  };
+  const originalElements = [];
 
   /**
    * Private function for building toggle using js
@@ -239,13 +241,13 @@ const colorBlindnessTool = (function () {
       Achromatopsia(v) {
         return monochrome(v);
       },
-      Achromatomaly(v) {
+      Achromatically(v) {
         return anomalize(v, monochrome(v));
       },
     };
     let rgbArr = [];
     let rgbStr = '';
-    const colorMatches = color.match(/rgb[a]?\(([0-9]{1,3}), ([0-9]{1,3}), ([0-9]{1,3}),? ?(1|0\.[0-9]{1,})?\)/);
+    const colorMatches = color.match(/rgb[a]?\(([0-9]{1,3}), ([0-9]{1,3}), ([0-9]{1,3}),? ?(1|0|0\.[0-9]{1,})?\)/);
     let transparency = false;
 
     if (colorMatches.length && Object.prototype.hasOwnProperty.call(fBlind, deficiency)) {
@@ -471,7 +473,7 @@ const colorBlindnessTool = (function () {
           color.rawHex[1],
           color.rawHex[1],
           color.rawHex[2],
-          color.rawHex[2]
+          color.rawHex[2],
         ];
       }
 
@@ -524,31 +526,26 @@ const colorBlindnessTool = (function () {
    * @returns {string} status message
    */
   const convertElementToDeficiency = function (element, deficiency) {
-    // check for
-    //  *font-color
-    //  *background-color
-    //  *border-color
     if (typeof element !== 'undefined') {
-      if (element.style.color.length) {
-        // check if rgb
+      const currentElement = element;
+      const elementColors = {
+        color: convertColorToRGB(window.getComputedStyle(currentElement, null).getPropertyValue('color')),
+        'border-top-color': convertColorToRGB(window.getComputedStyle(currentElement, null).getPropertyValue('border-top-color')),
+        'border-right-color': convertColorToRGB(window.getComputedStyle(currentElement, null).getPropertyValue('border-right-color')),
+        'border-left-color': convertColorToRGB(window.getComputedStyle(currentElement, null).getPropertyValue('border-left-color')),
+        'border-bottom-color': convertColorToRGB(window.getComputedStyle(currentElement, null).getPropertyValue('border-bottom-color')),
+        'background-color': convertColorToRGB(window.getComputedStyle(currentElement, null).getPropertyValue('background-color')),
+      };
 
-        // check if color name
-        // if () {
-
-        // }
-        convertColorToDeficiency(element.style.color, deficiency);
+      if (!domColorUpdated) {
+        originalElements.push([currentElement, elementColors]);
       }
 
-      if (window.getComputedStyle(element, null).getPropertyValue('border-color')) {
-        const borderColor = convertColorToRGB(window.getComputedStyle(element, null).getPropertyValue('border-color'));
-        // Note getComputedStyle can return multiple rgb values in 1 string for border color...
-        // top, right, bottom, left
-        console.log(`After: ${borderColor}`);
-      }
-
-      // if (element.style.backgroundColor.length) {
-
-      // }
+      Object.entries(elementColors).forEach(([key, value]) => {
+        if (value !== '') {
+          currentElement.style[key] = convertColorToDeficiency(value, deficiency);
+        }
+      });
     }
 
     return '';
@@ -558,12 +555,25 @@ const colorBlindnessTool = (function () {
    * Iterate through the all elements in a dom and pass it to funcition above
    *
    * @param {string} deficiency
-   * @param {boolean} includeImages
    * @returns {string} status message
    */
-  const convertDomToDeficiency = function (deficiency, includeImages) {
+  const convertDomToDeficiency = function (deficiency) {
     // Grab all elements
+    const elements = document.getElementsByTagName('*');
 
+    if (domColorUpdated) {
+      for (let index = 0; index < originalElements.length; index += 1) {
+        Object.entries(originalElements[index][1]).forEach(([key, value]) => {
+          originalElements[index][0].style[key] = convertColorToDeficiency(value, deficiency);
+        });
+      }
+    }
+
+    Object.getOwnPropertyNames(elements).forEach((key) => {
+      convertElementToDeficiency(elements[key], deficiency);
+    });
+
+    domColorUpdated = true;
     return '';
   };
 
@@ -571,10 +581,9 @@ const colorBlindnessTool = (function () {
    * Setup event listeners on deficiency toggle buttons to loop through deficiencies
    *
    * @param {string} togglePosition
-   * @param {boolean} showDebugMessages
-   * @returns {string} status message
+   * @param {boolean} includeStyle
    */
-  const initialize = function (togglePosition, includeStyle, includeImages, showDebugMessages) {
+  const initialize = function (togglePosition, includeStyle) {
     const {
       txtId,
       arrowLeftBtn,
@@ -582,11 +591,10 @@ const colorBlindnessTool = (function () {
       style,
       html,
     } = buildColorToggle(true, togglePosition);
-    const lastDeficiency = colorDeficiencies.length - 1;
+    const deficiencyKeys = Object.keys(colorDeficiencies);
+    const deficiencyValues = Object.values(colorDeficiencies);
+    const lastDeficiency = deficiencyKeys.length - 1;
     let deficiencyIndex = 0;
-    let statusMessage = {
-      events: {},
-    };
 
     if (includeStyle) {
       const styleElement = document.createElement('style');
@@ -596,11 +604,7 @@ const colorBlindnessTool = (function () {
     }
 
     document.getElementsByTagName('body')[0].innerHTML += html;
-    document.getElementById(txtId).innerHTML = colorDeficiencies[0];
-
-    if (typeof showDebugMessages === 'boolean') {
-      debugMode = showDebugMessages;
-    }
+    document.getElementById(txtId).innerHTML = deficiencyValues[0];
 
     document.getElementById(arrowLeftBtn).addEventListener('click', () => {
       if (deficiencyIndex === 0) {
@@ -609,41 +613,20 @@ const colorBlindnessTool = (function () {
         deficiencyIndex -= 1;
       }
 
-      document.getElementById(txtId).innerHTML = colorDeficiencies[deficiencyIndex];
-      // convertDomToDeficiency ( colorDeficiencies[deficiencyIndex], includeImages )
+      document.getElementById(txtId).innerHTML = deficiencyValues[deficiencyIndex];
+      convertDomToDeficiency(deficiencyValues[deficiencyIndex]);
     });
 
     document.getElementById(arrowRightBtn).addEventListener('click', () => {
-      if (deficiencyIndex === colorDeficiencies.length - 1) {
+      if (deficiencyIndex === deficiencyKeys.length - 1) {
         deficiencyIndex = 0;
       } else {
         deficiencyIndex += 1;
       }
 
-      document.getElementById(txtId).innerHTML = colorDeficiencies[deficiencyIndex];
-      // convertDomToDeficiency ( colorDeficiencies[deficiencyIndex], includeImages )
+      document.getElementById(txtId).innerHTML = deficiencyValues[deficiencyIndex];
+      convertDomToDeficiency(deficiencyValues[deficiencyIndex]);
     });
-
-    // Testing
-    if (debugMode) {
-      document.getElementById(arrowLeftBtn).click();
-      if (document.getElementById(txtId).innerHTML === colorDeficiencies[lastDeficiency]) {
-        statusMessage.events['left-arrow-btn'] = 'Success';
-      } else {
-        statusMessage.events['left-arrow-btn'] = 'Fail';
-      }
-
-      document.getElementById(arrowRightBtn).click();
-      if (document.getElementById(txtId).innerHTML === colorDeficiencies[0]) {
-        statusMessage.events['right-arrow-btn'] = 'Success';
-      } else {
-        statusMessage.events['right-arrow-btn'] = 'Fail';
-      }
-    } else {
-      statusMessage = 'init successful';
-    }
-
-    return statusMessage;
   };
 
   return {
