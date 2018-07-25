@@ -263,7 +263,9 @@ const colorBlindnessTool = (function () {
     };
     let rgbArr = [];
     let rgbStr = '';
-    const colorMatches = color.match(/rgb[a]?\(([0-9]{1,3}), ([0-9]{1,3}), ([0-9]{1,3}),? ?(1|0|0\.[0-9]{1,})?\)/);
+    const colorMatches = (typeof this.convertRGB !== 'undefined')
+      ? this.convertRGB(color).match(/rgb[a]?\(([0-9]{1,3}), ([0-9]{1,3}), ([0-9]{1,3}),? ?(1|0|0\.[0-9]{1,})?\)/)
+      : color.match(/rgb[a]?\(([0-9]{1,3}), ([0-9]{1,3}), ([0-9]{1,3}),? ?(1|0|0\.[0-9]{1,})?\)/);
     let transparency = false;
 
     if (colorMatches.length && Object.prototype.hasOwnProperty.call(fBlind, deficiency)) {

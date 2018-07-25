@@ -140,13 +140,6 @@ describe('Color Blindness Tool', () => {
     });
   });
 
-  // convertElement ( element, deficiency )
-  // describe('Convert element to how it would be perceived by a color deficiency', () => {
-  //   it('', () => {
-  //     expect(colorBlindnessTool.convertElement()).toBe('');
-  //   });
-  // });
-
   // convertRGB ( color )
   describe('Convert a hex or color-name into a rgb/rgba', () => {
     describe('Hex', () => {
