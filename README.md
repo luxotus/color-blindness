@@ -4,9 +4,12 @@ Tool to help you view your site as a user with a color deficiency. Giving you co
 
 ## Getting Started
 
-To toggle between color deficiencies
+To build toggle at the top of page between color deficiencies
 ```javascript
-  colorBlindnessTool.init('center', true); // (Toggle location, should js embed css)
+  // init(Toggle location, embed css)
+  // toggle location: "left", "right", "center"
+  // true: have js embed css, false: your including the prebuilt css file
+  colorBlindnessTool.init('center', true);
 ```
 
 Converting color by a given deficiency.
