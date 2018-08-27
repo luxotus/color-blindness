@@ -59,8 +59,3 @@ Also made our rgb color converter accessible, just incase you need to turn a col
   colorBlindnessTool.convertRGB('#f2d'); // rgb(255, 34, 221)
   colorBlindnessTool.convertRGB('wheat'); // rgb(245, 222, 179)
 ```
-
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
